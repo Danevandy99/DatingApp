@@ -1,7 +1,10 @@
+import { ConfirmService } from './../_services/confirm.service';
 import { MessageService } from './../_services/message.service';
 import { Pagination } from './../models/pagination';
 import { Message } from './../models/message';
 import { Component, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
+import { iif } from 'rxjs';
 
 @Component({
   selector: 'app-messages',
@@ -18,7 +21,8 @@ export class MessagesComponent implements OnInit {
   loading = false;
 
   constructor(
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmService: ConfirmService
   ) { }
 
   ngOnInit(): void {
@@ -36,9 +40,13 @@ export class MessagesComponent implements OnInit {
   }
 
   deleteMessage(id: number) {
-    this.messageService.deleteMessage(id).subscribe(() => {
+    this.confirmService.confirm('Confirm delete message', 'This cannot be undone').pipe(
+      switchMap((result: boolean) => {
+        return iif(() => result, this.messageService.deleteMessage(id));
+      })
+    ).subscribe(() => {
       this.messages.splice(this.messages.findIndex(m => m.id === id), 1);
-    })
+    });
   }
 
   pageChanged(event: any) {
