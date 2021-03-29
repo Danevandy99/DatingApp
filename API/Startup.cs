@@ -66,6 +66,7 @@ namespace API
 
       app.UseCors(policy => policy.AllowAnyHeader()
         .AllowAnyMethod()
+        .AllowCredentials()
         .WithOrigins("https://localhost:4200")
       );
 
@@ -77,6 +78,7 @@ namespace API
       {
         endpoints.MapControllers();
         endpoints.MapHub<PresenceHub>("hubs/presence");
+        endpoints.MapHub<MessageHub>("hubs/message");
       });
     }
   }
