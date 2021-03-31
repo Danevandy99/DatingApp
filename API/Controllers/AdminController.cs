@@ -86,9 +86,10 @@ namespace API.Controllers
 
       if (!user.Photos.Any(p => p.IsMain)) photo.IsMain = true;
 
-      if (await _unitOfWork.Complete()) return Ok();
+      await _unitOfWork.Complete();
+      
+      return Ok();
 
-      return BadRequest();
     }
 
     [Authorize(Policy = "ModeratePhotoRole")]

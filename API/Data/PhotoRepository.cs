@@ -24,8 +24,7 @@ namespace API.Data
     {
       return await _context.Photos
         .IgnoreQueryFilters()
-        .Where(p => p.Id == photoId)
-        .SingleOrDefaultAsync();
+        .SingleOrDefaultAsync(p => p.Id == photoId);
     }
 
     public async Task<IEnumerable<PhotoForApprovalDto>> GetUnapprovedPhotosAsync()
