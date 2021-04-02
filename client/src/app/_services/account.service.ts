@@ -19,6 +19,10 @@ export class AccountService {
     private presence: PresenceService
   ) { }
 
+  refreshUser(): Observable<Partial<User>> {
+    return this.http.get<Partial<User>>(this.baseUrl + 'account/get-current-user');
+  }
+
   login(model: any): Observable<any> {
     return this.http.post(this.baseUrl + 'account/login', model)
       .pipe(

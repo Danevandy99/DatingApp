@@ -27,6 +27,12 @@ export class AppComponent implements OnInit {
     if (user) {
       this.accountService.setCurrentUser(user);
       this.presence.createHubConnection(user);
+      this.accountService.refreshUser().subscribe((partialUser: Partial<User>) => {
+        this.accountService.setCurrentUser({
+          ...user,
+          ...partialUser
+        });
+      });
     }
   }
 }

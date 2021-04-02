@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
@@ -19,8 +20,10 @@ namespace API.Controllers
     private readonly IMapper _mapper;
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
-    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper)
+    private readonly IUnitOfWork _unitOfWork;
+    public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService, IMapper mapper, IUnitOfWork unitOfWork)
     {
+      _unitOfWork = unitOfWork;
       _userManager = userManager;
       _signInManager = signInManager;
       _mapper = mapper;
@@ -48,6 +51,22 @@ namespace API.Controllers
       {
         Username = user.UserName,
         Token = await _tokenService.CreateToken(user),
+        KnownAs = user.KnownAs,
+        Gender = user.Gender
+      };
+    }
+
+    [HttpGet("get-current-user")]
+    public async Task<ActionResult<object>> GetCurrentUser()
+    {
+      var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+
+      if (user == null) return NotFound();
+
+      return new
+      {
+        Username = user.UserName,
+        PhotoUrl = user.Photos.FirstOrDefault(photo => photo.IsMain)?.Url ?? "",
         KnownAs = user.KnownAs,
         Gender = user.Gender
       };
